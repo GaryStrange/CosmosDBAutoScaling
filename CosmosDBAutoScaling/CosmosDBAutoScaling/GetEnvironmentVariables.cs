@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 using System;
+using System.Net.Http;
+
+//Add nuget https://www.nuget.org/packages/Microsoft.Azure.Services.AppAuthentication
+using Microsoft.Azure.Services.AppAuthentication;
+
 
 namespace CosmosDBAutoScaling
 {
@@ -14,6 +19,8 @@ namespace CosmosDBAutoScaling
     {
         static string endpointUrl = Environment.GetEnvironmentVariable("ProtectedEndpointUrl");
         static string authKeyUrl = Environment.GetEnvironmentVariable("ProtectedAuthKeyUrl");
+
+        private static HttpClient client = new HttpClient();
 
         [FunctionName("GetEnvironmentVariables")]
         public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
