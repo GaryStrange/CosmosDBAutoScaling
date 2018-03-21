@@ -23,9 +23,16 @@ namespace CosmosDBAutoScaling
             log.Info($"ProtectedEndpointUrl {endpointUrl}");
             log.Info($"ProtectedAuthKeyUrl {authKeyUrl}");
 
-            return (endpointUrl == null || authKeyUrl == null)
+            return ValidateParameters(endpointUrl, authKeyUrl)
                 ? new BadRequestObjectResult("Please check ProtectedEndpointUrl and ProtectedAuthKeyUrl variables are set in Application Settings")
                 : (ActionResult)new OkObjectResult($"Response OK, check logs.");
         }
+
+        private static bool ValidateParameters(string endpointUrl, string authKeyUrl)
+        =>
+            endpointUrl is null ||
+            endpointUrl == "Not Implemented Yet" ||
+            authKeyUrl is null ||
+            authKeyUrl == "Not Implemented Yet";
     }
 }
