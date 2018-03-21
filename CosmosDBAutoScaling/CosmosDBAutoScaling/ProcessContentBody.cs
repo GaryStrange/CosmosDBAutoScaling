@@ -6,6 +6,9 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
+using System.Diagnostics.Contracts;
+using System;
+using System.Text;
 
 namespace CosmosDBAutoScaling
 {
@@ -18,9 +21,9 @@ namespace CosmosDBAutoScaling
 
             string requestBody = new StreamReader(req.Body).ReadToEnd();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
+
             string webhookName = data?.WebhookName;
             log.Info($"WebhookName {webhookName}");
-
             string name = data?.RequestBody?.context?.name;
             log.Info($"name {name}");
             string status = data?.RequestBody?.status;
@@ -28,11 +31,23 @@ namespace CosmosDBAutoScaling
             string metricName = data?.RequestBody?.context?.condition?.metricName;
             log.Info($"metricName {metricName}");
 
-            
+            StringBuilder errors = new StringBuilder();
 
-            return webhookName != null
-                ? (ActionResult)new OkObjectResult($"Hello, {webhookName}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            return isValid(webhookName, "WebhookName", ref errors)
+                && isValid(name, "name", ref errors)
+                && isValid(status, "status", ref errors)
+                && isValid(metricName, "metricName", ref errors)
+                ? (ActionResult)new OkObjectResult($"Request good.")
+                : new BadRequestObjectResult(errors.ToString());
+        }
+
+        private static bool isValid(object o, string parameterName, ref StringBuilder sb)
+        {
+            bool result = false;
+            if (o is null) sb.AppendLine($"{parameterName} not found.");
+            else result = true;
+
+            return result;
         }
     }
 }

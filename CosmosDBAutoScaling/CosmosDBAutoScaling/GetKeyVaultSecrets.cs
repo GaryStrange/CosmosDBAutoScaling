@@ -34,23 +34,25 @@ namespace CosmosDBAutoScaling
 
             string endPointUrl =
                 kvClient.GetSecretAsync(endpointSecretUrl)
-                .GetAwaiter()
-                .GetResult()
+                .Result
                 .Value;
 
             log.Info(endPointUrl);
 
-            string authKey =
-                kvClient.GetSecretAsync(authKeySecretUrl)
-                .GetAwaiter()
-                .GetResult()
+            var authKey = kvClient.GetSecretAsync(authKeySecretUrl)
+                .Result
                 .Value;
 
             log.Info(authKey);
 
-            return (endPointUrl == null || authKey == null)
+            return ValidateParameters(endPointUrl, authKey)
                 ? new BadRequestObjectResult("Problems acessing endPointUrl or authkey secrets.")
                 : (ActionResult)new OkObjectResult($"Response OK, check logs.");
         }
+
+        private static bool ValidateParameters(string endPointUrl, string authKey)
+        =>
+            endPointUrl is null ||
+            authKey is null;
     }
 }
