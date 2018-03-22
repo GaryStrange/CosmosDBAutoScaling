@@ -1,33 +1,27 @@
 ﻿{
-  "WebhookName": "Alert1515515157799",
-  "RequestBody": {
-    "status": "Activated",
-    "context": {
-      "timestamp": "2015-08-14T22:26:41.9975398Z",
-      "id": "/subscriptions/s1/resourceGroups/useast/providers/microsoft.insights/alertrules/ruleName1",
-      "name": "ruleName1",
-      "description": "some description",
-      "conditionType": "Metric",
-      "condition": {
-        "metricName": "Requests",
-        "metricUnit": "Count",
-        "metricValue": "10",
-        "threshold": "10",
-        "windowSize": "15",
-        "timeAggregation": "Average",
-        "operator": "GreaterThanOrEqual"
-      },
-      "subscriptionId": "s1",
-      "resourceGroupName": "useast",
-      "resourceName": "mysite1",
-      "resourceType": "microsoft.foo/sites",
-      "resourceId": "/subscriptions/s1/resourceGroups/useast/providers/microsoft.foo/sites/mysite1",
-      "resourceRegion": "centralus",
-      "portalLink": "https://portal.azure.com/#resource/subscriptions/s1/resourceGroups/useast/providers/microsoft.foo/sites/mysite1"
+  "status": "Activated",
+  "context": {
+    "condition": {
+      "metricName": "Total Requests",
+      "metricUnit": "Count",
+      "metricValue": "4932",
+      "threshold": "300",
+      "windowSize": "15",
+      "timeAggregation": "Total",
+      "operator": "GreaterThan"
     },
-    "properties": {
-      "key1": "value1",
-      "key2": "value2"
-    }
-  }
+    "resourceName": "workbench",
+    "resourceType": "microsoft.documentdb/databaseaccounts",
+    "resourceRegion": "North Europe",
+    "portalLink": "https://portal.azure.com/#resource/subscriptions/51dbb16f-c0c8-41e3-aea1-93f6e8573e73/resourcegroups/TechnologyProving/providers/Microsoft.DocumentDB/databaseAccounts/workbench",
+    "timestamp": "2018-03-22T15:14:36.6240112Z",
+    "id": "/subscriptions/51dbb16f-c0c8-41e3-aea1-93f6e8573e73/resourceGroups/TechnologyProving/providers/microsoft.insights/alertrules/WestEuropeworkbenchTotal%20RequestsAlertRule",
+    "name": "WestEuropeworkbenchTotal RequestsAlertRule",
+    "description": "West Europe workbench Total Requests",
+    "conditionType": "Metric",
+    "subscriptionId": "51dbb16f-c0c8-41e3-aea1-93f6e8573e73",
+    "resourceId": "/subscriptions/51dbb16f-c0c8-41e3-aea1-93f6e8573e73/resourcegroups/TechnologyProving/providers/Microsoft.DocumentDB/databaseAccounts/workbench",
+    "resourceGroupName": "TechnologyProving"
+  },
+  "properties": { "$type": "Microsoft.WindowsAzure.Management.Common.Storage.CasePreservedDictionary`1[[System.String, mscorlib]], Microsoft.WindowsAzure.Management.Common.Storage" }
 }

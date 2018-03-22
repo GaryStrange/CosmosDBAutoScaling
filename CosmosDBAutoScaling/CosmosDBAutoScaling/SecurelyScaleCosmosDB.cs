@@ -83,14 +83,14 @@ namespace CosmosDBAutoScaling
                     foreach (Database db in dbList)
                     {
                         IEnumerable<DocumentCollection> collectionList = client.CreateDocumentCollectionQuery(db.SelfLink);
-                        if (!collectionList.Any()) log.Info("No collections found.");
+                        if (!collectionList.Any()) log.Info($"{db.Id}: No collections found.");
 
                         foreach (DocumentCollection collection in collectionList)
                         {
                             scaleUpTasks.Add(
                                 ChangeThroughput(client, collection, (ru) => scaleExpression(ru))
                                     .ContinueWith(tsk =>
-                                        log.Info(collection.Id + " scaled RU: " + (tsk.Result as OfferV2).Content.OfferThroughput)
+                                        log.Info($"{db.Id}: {collection.Id} scaled RU: {(tsk.Result as OfferV2).Content.OfferThroughput}")
                                         )
                                 );
                         }
@@ -114,10 +114,19 @@ namespace CosmosDBAutoScaling
 
             private static async Task<Offer> ReplaceOffer(DocumentClient client, Offer currentOffer, int newThroughputOffer)
             {
+                //Potentially the new throughput may have been calculated using a factional multiplier.
+                //CosmosDB throughputs must be specified in hundred units.
+                newThroughputOffer = RoundSignaficantFigures(newThroughputOffer, 2);
 
                 OfferV2 replacementOffer = new OfferV2(currentOffer, newThroughputOffer);
 
                 return await client.ReplaceOfferAsync(replacementOffer);
+            }
+
+            private static int RoundSignaficantFigures(int number, int significantFigures)
+            {
+                Double scale = Math.Pow(10, significantFigures);
+                return (int)(Math.Round(number / scale, 0, MidpointRounding.AwayFromZero) * scale);  
             }
 
             private static async Task<Offer> ChangeThroughput(DocumentClient client, DocumentCollection collection, Func<int, int> relativeThroughputChange)
@@ -152,15 +161,15 @@ namespace CosmosDBAutoScaling
                 return result;
             }
 
-            public string WebhookName => data?.WebhookName;
-            public string Status => data?.RequestBody?.status;
-            public string MetricName => data?.RequestBody?.context?.condition?.metricName;
+            public string Status => data?.status;
+            public string MetricName => data?.context?.condition?.metricName;
+            public string MetricValue => data?.context?.condition?.metricValue;
 
             public bool isValid(ref StringBuilder sb)
             {
-                return RequestData.isValid(WebhookName, "WebhookName", ref sb)
-                    && RequestData.isValid(Status, "RequestBody\\status", ref sb)
-                    && RequestData.isValid(MetricName, "RequestBody\\context\\condition\\metricName", ref sb);
+                return RequestData.isValid(Status, "status", ref sb)
+                    && RequestData.isValid(MetricName, "context\\condition\\metricName", ref sb)
+                    && RequestData.isValid(MetricValue, "context\\condition\\metricValue", ref sb);
             }
 
             public bool isNotValid(ref StringBuilder sb) => !this.isValid(ref sb);
