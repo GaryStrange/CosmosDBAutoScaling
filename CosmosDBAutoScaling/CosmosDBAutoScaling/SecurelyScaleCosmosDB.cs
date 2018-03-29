@@ -50,9 +50,13 @@ namespace CosmosDBAutoScaling
             log.Info("Sensitive data read without error.");
 
             bool scalingSucess = false;
-            if (requestData.Status == "Activated")
+            if (requestData.MetricName == "Total Request Units" && requestData.Status == "Activated")
             {
                 scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => ru + 100, log);
+            }
+            else if (requestData.MetricName == "Total Request Units" && requestData.Status == "Resolved")
+            {
+                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => ru - 100, log);
             }
             return scalingSucess
                 ? (ActionResult)new OkObjectResult($"CosmosDB account scaling sucessful. See Azure Function log for details.")
