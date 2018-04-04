@@ -24,6 +24,7 @@ namespace CosmosDBAutoScaling
         private static string endpointSecretUrl = Environment.GetEnvironmentVariable("ProtectedEndpointUrl");
         private static string authKeySecretUrl = Environment.GetEnvironmentVariable("ProtectedAuthKeyUrl");
 
+        private static double scaleFactory = 2.236;
         
         [FunctionName("SecurelyScaleCosmosDB")]
         public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
@@ -49,14 +50,29 @@ namespace CosmosDBAutoScaling
                 throw new Exception("Information retrieved from Key Vault is invalid");
             log.Info("Sensitive data read without error.");
 
+            Func<int, int> scaleUp = (ru)
+                 =>
+             {
+                 double vulgarRu = Convert.ToDouble(ru) * SecurelyScaleCosmosDB.scaleFactory;
+                 return Convert.ToInt32(Math.Round(vulgarRu, MidpointRounding.AwayFromZero));
+             };
+            Func<int, int> scaleDown = (ru)
+                  =>
+            {
+                double vulgarRu = Convert.ToDouble(ru) * SecurelyScaleCosmosDB.scaleFactory;
+                return Convert.ToInt32(Math.Round(vulgarRu, MidpointRounding.AwayFromZero));
+            };
+
             bool scalingSucess = false;
             if (requestData.MetricName == "Total Request Units" && requestData.Status == "Activated")
             {
-                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => ru + 100, log);
+                log.Info("Total Request Units Activated Scale Up.");
+                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => scaleUp(ru), log);
             }
             else if (requestData.MetricName == "Total Request Units" && requestData.Status == "Resolved")
             {
-                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => ru - 100, log);
+                log.Info("Total Request Units Resolved Scale Down.");
+                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => scaleDown(ru), log);
             }
             return scalingSucess
                 ? (ActionResult)new OkObjectResult($"CosmosDB account scaling sucessful. See Azure Function log for details.")
