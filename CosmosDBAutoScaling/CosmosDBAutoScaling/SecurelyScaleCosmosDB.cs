@@ -24,8 +24,6 @@ namespace CosmosDBAutoScaling
         private static string endpointSecretUrl = Environment.GetEnvironmentVariable("ProtectedEndpointUrl");
         private static string authKeySecretUrl = Environment.GetEnvironmentVariable("ProtectedAuthKeyUrl");
 
-        private static double scaleFactory = 2.236;
-        
         [FunctionName("SecurelyScaleCosmosDB")]
         public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
         {
@@ -51,29 +49,18 @@ namespace CosmosDBAutoScaling
                 throw new Exception("Information retrieved from Key Vault is invalid");
             log.Info("Sensitive data read without error.");
 
-            Func<int, int> scaleUp = (ru)
-                 =>
-             {
-                 double vulgarRu = Convert.ToDouble(ru) * SecurelyScaleCosmosDB.scaleFactory;
-                 return Convert.ToInt32(Math.Round(vulgarRu, MidpointRounding.AwayFromZero));
-             };
-            Func<int, int> scaleDown = (ru)
-                  =>
-            {
-                double vulgarRu = Convert.ToDouble(ru) / SecurelyScaleCosmosDB.scaleFactory;
-                return Convert.ToInt32(Math.Round(vulgarRu, MidpointRounding.AwayFromZero));
-            };
 
+            var scaler = RequestUnitsScaleFactor.CreateRequestUnitsCompute(400, 2000, 4);
             bool scalingSucess = false;
-            if (requestData.MetricName == "Total Request Units" && requestData.Status == "Activated")
+            if (requestData.MetricName == "Max RUs Per Second" && requestData.Status == "Activated")
             {
                 log.Info("Total Request Units Activated Scale Up.");
-                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => scaleUp(ru), log);
+                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => scaler.ScaleUp(ru), log);
             }
-            else if (requestData.MetricName == "Total Request Units" && requestData.Status == "Resolved")
+            else if (requestData.MetricName == "Max RUs Per Second" && requestData.Status == "Resolved")
             {
                 log.Info("Total Request Units Resolved Scale Down.");
-                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => scaleDown(ru), log);
+                scalingSucess = CosmosDBScaler.ScaleAccount(endPointUrl, authKey, ru => scaler.ScaleDown(ru), log);
             }
             return scalingSucess
                 ? (ActionResult)new OkObjectResult($"CosmosDB account scaling sucessful. See Azure Function log for details.")
@@ -187,6 +174,7 @@ namespace CosmosDBAutoScaling
             public string Status => data?.status;
             public string MetricName => data?.context?.condition?.metricName;
             public string MetricValue => data?.context?.condition?.metricValue;
+            public string Threshold => data?.context?.condition?.threshold;
 
             public bool isValid(ref StringBuilder sb)
             {
@@ -194,7 +182,8 @@ namespace CosmosDBAutoScaling
                     && RequestData.isValid(MetricName, "context\\condition\\metricName", ref sb)
                     && RequestData.isValid(MetricValue, "context\\condition\\metricValue", ref sb)
                     && RequestData.isValid(Name, "context\\name", ref sb)
-                    && RequestData.isValid(Description, "context\\description", ref sb);
+                    && RequestData.isValid(Description, "context\\description", ref sb)
+                    && RequestData.isValid(Threshold, "context\\condition\\threshold", ref sb);
             }
 
             public bool isNotValid(ref StringBuilder sb) => !this.isValid(ref sb);

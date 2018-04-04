@@ -259,3 +259,9 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/CosmosDBAutoScaling/ConsoleApp1/Properties/AssemblyInfo.cs
+/CosmosDBAutoScaling/ConsoleApp1/Properties
+/CosmosDBAutoScaling/ConsoleApp1/Program.cs
+/CosmosDBAutoScaling/ConsoleApp1/ConsoleApp1.csproj
+/CosmosDBAutoScaling/ConsoleApp1/App.config
+/CosmosDBAutoScaling/ConsoleApp1
