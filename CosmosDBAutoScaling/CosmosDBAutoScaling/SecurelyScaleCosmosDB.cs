@@ -59,7 +59,7 @@ namespace CosmosDBAutoScaling
             Func<int, int> scaleDown = (ru)
                   =>
             {
-                double vulgarRu = Convert.ToDouble(ru) * SecurelyScaleCosmosDB.scaleFactory;
+                double vulgarRu = Convert.ToDouble(ru) / SecurelyScaleCosmosDB.scaleFactory;
                 return Convert.ToInt32(Math.Round(vulgarRu, MidpointRounding.AwayFromZero));
             };
 
