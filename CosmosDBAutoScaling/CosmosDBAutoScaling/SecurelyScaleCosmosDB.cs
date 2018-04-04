@@ -36,6 +36,7 @@ namespace CosmosDBAutoScaling
             if (requestData.isNotValid(ref validationMessages))
                 throw new Exception(validationMessages.ToString());
             log.Info("Request body valid.");
+            log.Info(requestData.Description);
 
             if (isNotValid(endpointSecretUrl, authKeySecretUrl))
                 throw new Exception("Please check ProtectedEndpointUrl and ProtectedAuthKeyUrl variables are set in Application Settings");
@@ -181,6 +182,8 @@ namespace CosmosDBAutoScaling
                 return result;
             }
 
+            public string Name => data?.context?.name;
+            public string Description => data?.context?.description;
             public string Status => data?.status;
             public string MetricName => data?.context?.condition?.metricName;
             public string MetricValue => data?.context?.condition?.metricValue;
@@ -189,7 +192,9 @@ namespace CosmosDBAutoScaling
             {
                 return RequestData.isValid(Status, "status", ref sb)
                     && RequestData.isValid(MetricName, "context\\condition\\metricName", ref sb)
-                    && RequestData.isValid(MetricValue, "context\\condition\\metricValue", ref sb);
+                    && RequestData.isValid(MetricValue, "context\\condition\\metricValue", ref sb)
+                    && RequestData.isValid(Name, "context\\name", ref sb)
+                    && RequestData.isValid(Description, "context\\description", ref sb);
             }
 
             public bool isNotValid(ref StringBuilder sb) => !this.isValid(ref sb);
