@@ -19,12 +19,12 @@ You'll see many examples of using Azure Functions via the Azure portal, coding o
 
 This was fairly straight forward using the Microsoft online documentation. I did run into a problem with a reference to System.ValueTuples from the Microsoft.NET.Sdk.Functions nuget. I upgraded to .net .1.47 and this seemed to fix my issue.
 
-# Out Bindings and MSI
+## Output Bindings and MSI
 An objective of this exercise is to make management calls to a CosmosDB account. Azure Functions natively support output bindings to CosmosDB. The binding allows you to create new documents in a collections. However my objective is to change the provisioned RU so the CosmosDB output binding isn't going to help me here. I need to take advantage of the CosmosDB sdk and make database and collection level calls. To make alterations to the RU provisioned setting I'll need masterkey access and I'll also need to secure the account master auth key. In steps Key Vault. Before I can obtain sensitive information from key vault I need to have permission to read from Key Vault. This is done using a managed service identity (MSI) for the function app. Using an MSI I can configure other Azure resources to allow access to calls originating from the service identity. 
 
 
 
-Configure the MSI via the Azure Portal
+## Configure the MSI via the Azure Portal
 
 
 Configuring the MSI via the Azure Portal couldn't be easier. Open your functionapp navigate to platform features→ Managed service Identity.
