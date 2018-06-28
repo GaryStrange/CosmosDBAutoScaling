@@ -29,7 +29,7 @@ An objective of this exercise is to make management calls to a CosmosDB account.
 
 Configuring the MSI via the Azure Portal couldn't be easier. Open your functionapp navigate to platform features→ Managed service Identity.
 
-
+![alt text](https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/FuncAppMSIConfig.png)
 
 From there it's a simple matter of toggling the "Register with Azure Active Directory" option.
 
