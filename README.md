@@ -8,6 +8,8 @@ It's impossible for humans to monitor a system 24/7 so we employ monitoring syst
 
 However it is possible to compose an auto-scale feature by utilizing a few Azure components. Azure monitoring and alerting allows alert rules to be created against a CosmosDB account. Alert rules can fire webhooks. Webhooks can call Azure Functions. Azure Functions can retrieve CosmosDB authentication securely from Key Vault. Azure Functions can utilize the CosmosDB client to scale the CosmosDB account assets. Below is a high-level diagram illustrating how these Azure components can be combined to create an server-less auto scale function.
 
+![alt text](https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/CosmosDBServerLessScaleUp.png)
+
 This document gives examples of how to interact which each Azure component in the topology above. I create a function which utilises each component in isolation. I'll then conclude by giving any example of the complete solution.
 
 
