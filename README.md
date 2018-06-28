@@ -66,11 +66,17 @@ I produced a set functions that tackle each problme seperately. From getting env
 ## Get Environment Variables
 I use Azure Function application setting to store the Url's the Key Vault location I want to access securely.
 
+https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/CosmosDBAutoScaling/CosmosDBAutoScaling/GetEnvironmentVariables.cs
+
 ## Get Key Vault Secrets
 This function uses the MSI registered for the Function App to instantiate a Key Vault client. The client is then used to retrieve the sensitive CosmosDB connection information.
 
+https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/CosmosDBAutoScaling/CosmosDBAutoScaling/GetKeyVaultSecrets.cs
+
 ## CosmosDB Scaler
 The scaler makes a connection to the CosmosDB account and then traverses the database-collection hierarchy. An async scale up task is created for each collection with a scale up expression specified. In this example all collection are increased 100 RU.
+
+https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/CosmosDBAutoScaling/CosmosDBAutoScaling/CosmosDBScaler.cs
 
 # Tier Box
 The Azure Alerting structure only allows us to configure trigger conditions against absolute value. For example we can configure an alert to trigger when the Max RU Per Second metric is greater than 1000RU. Ideally we'd like to express relative values. For example when the Max RU Per Second metric is greater than 60% trigger the alert. However this is just not currently possible. When it comes to automatically scaling a CosmosDB account we might like to scale it at a number of trigger points, creating a number of scale tiers. Using a single alert with an absolute trigger threshold means we're only able to configure a two tier system. One tier for expected usage and a second tier for higher than usual RU consumption. Configuring multiple alerts at increasing RU threshold's means we can ramp the RU up in increasing increments. Thus engineering a multi-tier auto-scale.
