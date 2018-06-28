@@ -33,9 +33,9 @@ Configuring the MSI via the Azure Portal couldn't be easier. Open your functiona
 
 From there it's a simple matter of toggling the "Register with Azure Active Directory" option.
 
+![alt text](https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/MSIToggle.png)
 
-
-Visit the Microsoft documentation for more info on configuring the MSI programatically.
+Visit the [Microsoft documentation](https://docs.microsoft.com/en-us/azure/app-service/app-service-managed-service-identity) for more info on configuring the MSI programatically.
 
 
 
@@ -43,37 +43,33 @@ Visit the Microsoft documentation for more info on configuring the MSI programat
 # Key Vault
 Key Vault is used to secure the sensitive CosmosDB connection information. Both account url and master authkey will be stored in Key Vault. This keeps them secure and configurable at deploy time.
 
-Keeping a Secret
+## Keeping a Secret
 
 
 In the Azure Key Vault blade select "Secrets" and "Generate/Import". To create a secret you'll need to supply a name for the secret and the CosmosDB authkey.
 
-
-
-
-
-
+![alt text](https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/importSecret.png)
 
 Once created open the secret and click the latest version. You'll then have access to the "secret identifier". You'll need the URL to access the secret via the Key Vault SDK.
 
+![alt text](https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/image2018-3-13_13-14-49.png)
 
-Accessing a Secret
+## Accessing a Secret
+
 The next step is to give your functionapp MSI access to the secrete. Goto "Access policies" on the main Key Vault blade. You should see an existing policy that enables the owner to modify content in the vault. Add a new policy and select the functionapp MSI from the "select principal" selector. Considering the least privileges security principal from the "Secret Permission" drop down select "Secret Management Operations"→ "Get". This is the only permission necessary.
 
-
-
-
+![alt text](https://github.com/GaryStrange/CosmosDBAutoScaling/blob/master/keyVaultAccessPolicy.png)
 
 # Function Code
 I produced a set functions that tackle each problme seperately. From getting enviromental information, to getting protected data, to making the CosmosDB call.
 
-Get Environment Variables
+## Get Environment Variables
 I use Azure Function application setting to store the Url's the Key Vault location I want to access securely.
 
-Get Key Vault Secrets
+## Get Key Vault Secrets
 This function uses the MSI registered for the Function App to instantiate a Key Vault client. The client is then used to retrieve the sensitive CosmosDB connection information.
 
-CosmosDB Scaler
+## CosmosDB Scaler
 The scaler makes a connection to the CosmosDB account and then traverses the database-collection hierarchy. An async scale up task is created for each collection with a scale up expression specified. In this example all collection are increased 100 RU.
 
 # Tier Box
@@ -83,7 +79,7 @@ When I started thinking about a multi-tier auto-scale I immediately thought abou
 
 
 
-Let
+### Let
 s = starting RU provisioned
 
 e = the maximum RU I'm willing to provision to
@@ -92,7 +88,7 @@ n = the number of steps I'd like to take.
 
 sf = the RU scaling factor I'll need to apply
 
-Scale Function
+### Scale Function
 sf = n √(e ÷ s)
 
 
